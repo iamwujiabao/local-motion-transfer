@@ -31,6 +31,11 @@ dependencies = [
     "decord==0.6.0",
     "einops",
     "omegaconf",
+    "matplotlib",                  # MimicMotion's DWPose util imports it (pose drawing)
+    # diffusers' from_pretrained defaults to low_cpu_mem_usage=True, which needs
+    # accelerate. Cap <0.30 to stay in the diffusers-0.27 era and avoid pulling
+    # huggingface-hub >=0.26 (see the hub pin above).
+    "accelerate>=0.26,<0.30",
 
     # --- DWPose (MimicMotion's pose estimator) ---
     # GPU build. If its CUDA version doesn't match your driver/torch CUDA and the
