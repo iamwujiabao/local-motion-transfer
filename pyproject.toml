@@ -1,0 +1,55 @@
+[project]
+name = "local-motion-transfer"
+version = "0.1.0"
+description = "Privacy-first, local-first motion-transfer app wired to MimicMotion"
+readme = "README.md"
+# torch 2.0.1 / cu117 only ships cp38–cp311 wheels, and MimicMotion targets 3.11.
+requires-python = "==3.11.*"
+
+dependencies = [
+    # --- this app: web / UI / media ---
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "python-multipart>=0.0.9",     # FastAPI file uploads
+    "gradio>=4.0",
+    "requests>=2.31",
+    "opencv-python>=4.9",
+    "pillow>=10.0",
+    "imageio-ffmpeg>=0.4.9",       # bundles an ffmpeg binary (audio mux / metadata)
+
+    # numpy MUST stay <2: torch 2.0.1, decord 0.6, transformers 4.32 predate the
+    # numpy-2 ABI and will crash against it.
+    "numpy>=1.24,<2",
+
+    # --- MimicMotion runtime (mirrors its environment.yaml) ---
+    "torch==2.0.1",
+    "torchvision==0.15.2",
+    "diffusers==0.27.0",           # MimicMotion uses APIs specific to this version
+    "transformers==4.32.1",
+    "decord==0.6.0",
+    "einops",
+    "omegaconf",
+
+    # --- DWPose (MimicMotion's pose estimator) ---
+    # GPU build. If its CUDA version doesn't match your driver/torch CUDA and the
+    # CUDA provider fails to initialize, either pin a matching build or switch to
+    # the CPU package `onnxruntime` (DWPose is not the bottleneck).
+    "onnxruntime-gpu",
+]
+
+# This is an application, not a library: have uv manage the env and install the
+# dependencies, but not build/install the project itself as a wheel.
+[tool.uv]
+package = false
+
+# Pull torch + torchvision from PyTorch's CUDA 11.7 wheel index (matching
+# MimicMotion's pin). `explicit = true` means ONLY the packages routed here via
+# [tool.uv.sources] use this index; everything else comes from PyPI.
+[tool.uv.sources]
+torch = { index = "pytorch-cu117" }
+torchvision = { index = "pytorch-cu117" }
+
+[[tool.uv.index]]
+name = "pytorch-cu117"
+url = "https://download.pytorch.org/whl/cu117"
+explicit = true

@@ -1,0 +1,39 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# --- uv / virtual envs ---
+.venv/
+venv/
+.env
+# Keep uv.lock committed for reproducible installs — it is intentionally NOT ignored.
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Runtime data: uploads, generated videos, scratch (created on first run) ---
+/data/
+
+# --- Logs ---
+*.log
+
+# --- Vendored MimicMotion repo + its weights (provided locally; large /
+#     separately licensed). Keep only the placeholder README. ---
+/third_party/*
+!/third_party/README.md
+
+# --- Model weight files anywhere, as a safety net ---
+*.pth
+*.onnx
+*.safetensors
+*.ckpt
+*.bin
