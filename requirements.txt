@@ -2,7 +2,7 @@
 # source of truth and already includes MimicMotion's runtime + the CUDA torch
 # index. This file lists ONLY the app's web/media deps, for a pip+conda setup
 # where torch/diffusers/transformers/decord/einops/omegaconf come from
-# MimicMotion's conda environment.  DWPose also needs: pip install onnxruntime-gpu
+# MimicMotion's conda environment.  DWPose also needs: pip install onnxruntime
 #
 # The UI is a static page served by FastAPI — no gradio.
 

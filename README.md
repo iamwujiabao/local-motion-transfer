@@ -113,10 +113,14 @@ file.
   CUDA wheel by editing the `pytorch-cu117` index URL in `pyproject.toml`
   (e.g. `.../whl/cu121`) and the torch/torchvision pins — note this can pull
   diffusers/transformers compatibility along with it.
-- **DWPose (onnxruntime-gpu):** its bundled CUDA version must match your driver.
-  If the CUDA execution provider fails to initialize, pin a matching
-  `onnxruntime-gpu` build, or swap to the CPU package `onnxruntime` — DWPose
-  runs at preprocessing only and is not the bottleneck.
+- **DWPose (onnxruntime):** runs on **CPU** by default. The `onnxruntime-gpu`
+  wheels are hard-pinned to a CUDA major version (the PyPI default now links
+  CUDA 12/13), which won't match this CUDA 11.7 stack and fails at import with a
+  missing `libcudart.so`. DWPose runs only at preprocessing and is not the
+  bottleneck, so CPU is the safe default; MimicMotion asks for the CUDA provider
+  and onnxruntime falls back to CPU with a warning. For GPU pose (faster), use a
+  CUDA-11 build such as `onnxruntime-gpu==1.16.3` and make CUDA 11 runtime libs
+  visible to onnxruntime.
 
 ## VRAM and tuning (`config.py`)
 
