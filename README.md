@@ -65,9 +65,11 @@ uv sync                    # creates .venv and installs everything from pyprojec
 PyTorch CUDA-11.7 index configured in `pyproject.toml`; all other packages come
 from PyPI.
 
-If uv's resolver complains about a transitive conflict in the old pinned stack
-(diffusers 0.27 / transformers 4.32), the usual fix is to let a shared
-dependency float — e.g. add `"huggingface-hub>=0.20,<0.26"` to `dependencies`.
+The pins for `huggingface-hub` (<0.26) and `gradio` (<5) in `pyproject.toml`
+are load-bearing, not cosmetic: `diffusers==0.27.0` imports
+`huggingface_hub.cached_download`, which was removed in hub 0.26, and gradio 5
+would otherwise pull a hub version that breaks it. Leave those caps in place
+unless you also bump diffusers.
 
 ### 3. Download weights (into the MimicMotion repo's own models/ dir)
 
