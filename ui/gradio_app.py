@@ -5,8 +5,13 @@ The consent checkbox is required before generation is allowed.
 """
 from __future__ import annotations
 
+import sys
 import time
 from pathlib import Path
+
+# Allow running directly (python ui/gradio_app.py): put the project root on
+# sys.path so top-level modules like `config` import regardless of cwd.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import gradio as gr
 import requests
