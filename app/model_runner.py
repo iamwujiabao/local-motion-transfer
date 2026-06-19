@@ -105,8 +105,8 @@ def _get_pipeline():
     except Exception as exc:  # noqa: BLE001
         raise ModelNotConfigured(
             "Could not import MimicMotion. Install its dependencies "
-            "(decord, onnxruntime-gpu, omegaconf, diffusers, transformers, "
-            "einops) into this environment. See README. "
+            "(decord, onnxruntime, omegaconf, diffusers, transformers, "
+            "einops, accelerate, matplotlib) into this environment. See README. "
             f"Underlying error: {exc}"
         ) from exc
 

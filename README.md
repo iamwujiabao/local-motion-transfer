@@ -122,6 +122,26 @@ file.
   CUDA-11 build such as `onnxruntime-gpu==1.16.3` and make CUDA 11 runtime libs
   visible to onnxruntime.
 
+### System RAM (and WSL2)
+
+The base model is deserialized into **system RAM** before it moves to the GPU, so
+host memory matters as much as VRAM. SVD-XT is ~10GB of fp16 weights; with too
+little RAM the load is **OOM-killed** — a bare `Killed` with no Python traceback
+(confirm with `dmesg | grep -i oom`). Plan for **≥16GB** of RAM, or a large swap
+file to absorb the load spike.
+
+On **WSL2** the Linux VM is memory-capped (often a fraction of Windows RAM — check
+with `free -h`). Raise it in `C:\Users\<you>\.wslconfig`:
+
+```ini
+[wsl2]
+memory=12GB        # e.g. 24GB on a 32GB machine; leave Windows a few GB
+swap=32GB          # swap absorbs the load spike and prevents the kill
+```
+
+Then, from Windows: `wsl --shutdown`, reopen the Ubuntu terminal, and confirm the
+new ceiling with `free -h`. `scripts/check_env.py` reports system RAM too.
+
 ## VRAM and tuning (`config.py`)
 
 MimicMotion 1.1 targets up to 72 frames at 576×1024; the VAE decode is the
@@ -155,7 +175,7 @@ local-motion-transfer/
 ├── README.md
 ├── config.py               paths, device, MimicMotion params, labeling text
 ├── scripts/
-│   └── check_env.py        GPU/CUDA check
+│   └── check_env.py        GPU/CUDA + system-RAM check
 ├── app/
 │   ├── __init__.py
 │   ├── preprocessing.py     validation, human-presence prefilter, audio, frames
