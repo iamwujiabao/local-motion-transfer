@@ -109,4 +109,5 @@ async def download(job_id: str):
 
 @app.get("/")
 async def root():
-    return {"ok": True, "model_backend": config.MODEL_BACKEND}
+    ok, detail = model_runner.model_configured()
+    return {"ok": True, "model": "mimicmotion", "model_configured": ok, "detail": detail}
