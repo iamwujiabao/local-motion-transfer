@@ -7,12 +7,10 @@ readme = "README.md"
 requires-python = "==3.11.*"
 
 dependencies = [
-    # --- this app: web / UI / media ---
+    # --- this app: web / media (the UI is a static page served by FastAPI) ---
     "fastapi>=0.110",
     "uvicorn[standard]>=0.29",
     "python-multipart>=0.0.9",     # FastAPI file uploads
-    "gradio>=4.0,<5",              # gradio 5 needs huggingface-hub>=0.28, which breaks diffusers 0.27
-    "requests>=2.31",
     "opencv-python>=4.9",
     "pillow>=10.0",
     "imageio-ffmpeg>=0.4.9",       # bundles an ffmpeg binary (audio mux / metadata)
@@ -27,8 +25,8 @@ dependencies = [
     "diffusers==0.27.0",           # MimicMotion uses APIs specific to this version
     "transformers==4.32.1",
     # diffusers 0.27 imports huggingface_hub.cached_download, which was REMOVED in
-    # hub 0.26. Pin below 0.26 so that import works; this still satisfies
-    # transformers 4.32 and gradio 4. (Resolves to ~0.25.2.)
+    # hub 0.26. Pin below 0.26 so that import works (also fine for transformers
+    # 4.32). Resolves to ~0.25.2.
     "huggingface-hub>=0.20.2,<0.26",
     "decord==0.6.0",
     "einops",

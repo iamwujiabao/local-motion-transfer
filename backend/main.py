@@ -1,8 +1,10 @@
-"""FastAPI backend.
+"""FastAPI backend (also serves the single-page UI).
 
 Endpoints:
-  POST /upload    -> store an image or video, returns a file id
-  POST /generate  -> queue a job (requires consent affirmation)
+  GET  /             -> the HTML UI
+  GET  /healthz      -> model-configured status
+  POST /upload       -> store an image or video, returns a file id
+  POST /generate     -> queue a job (requires consent affirmation)
   GET  /status/{job_id}
   GET  /download/{job_id}
 """
@@ -13,13 +15,15 @@ import uuid
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 import config
 from app import model_runner
 from app.queue import JOBS
 
 app = FastAPI(title="Local Motion Transfer")
+
+FRONTEND = config.ROOT / "frontend" / "index.html"
 
 # id -> stored file path
 _FILES: dict[str, Path] = {}
@@ -104,10 +108,20 @@ async def download(job_id: str):
     out = job.meta.get("output")
     if not out or not Path(out).exists():
         raise HTTPException(500, "Output file missing.")
-    return FileResponse(out, media_type="video/mp4", filename=f"motion_transfer_{job_id}.mp4")
+    return FileResponse(
+        out, media_type="video/mp4",
+        filename=f"motion_transfer_{job_id}.mp4",
+        content_disposition_type="inline",
+    )
 
 
-@app.get("/")
-async def root():
+@app.get("/", response_class=HTMLResponse)
+async def index():
+    """Serve the single-page UI."""
+    return HTMLResponse(FRONTEND.read_text(encoding="utf-8"))
+
+
+@app.get("/healthz")
+async def healthz():
     ok, detail = model_runner.model_configured()
     return {"ok": True, "model": "mimicmotion", "model_configured": ok, "detail": detail}

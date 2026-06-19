@@ -18,6 +18,28 @@ import requests
 
 import config
 
+# --- Workaround for a gradio_client schema-introspection bug ----------------
+# Several gradio 4.x builds crash in get_api_info() with
+#   TypeError: argument of type 'bool' is not iterable
+# when a component schema has a boolean `additionalProperties`. That 500s
+# gradio's own localhost startup probe, after which launch() aborts with
+# "localhost is not accessible / set share=True". Patch the recursive schema
+# walker to treat boolean schema nodes as `Any`. No-op on already-fixed builds.
+try:
+    import gradio_client.utils as _gcu
+
+    _orig_json_schema = _gcu._json_schema_to_python_type
+
+    def _json_schema_to_python_type_safe(schema, defs=None):
+        if isinstance(schema, bool):
+            return "Any"
+        return _orig_json_schema(schema, defs)
+
+    _gcu._json_schema_to_python_type = _json_schema_to_python_type_safe
+except Exception:
+    pass
+# ----------------------------------------------------------------------------
+
 BACKEND = "http://127.0.0.1:8000"
 POLL_SECONDS = 2
 TIMEOUT_SECONDS = 60 * 30  # generation can be slow

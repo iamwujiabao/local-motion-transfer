@@ -30,8 +30,12 @@ sexual content involving anyone, or to deceive.
 reimplemented. MimicMotion aligns the driving-video pose to the reference body,
 so the reference image and the video are preprocessed together; the public
 `run_pipeline(job, image, video)` entrypoint is unchanged, so the FastAPI
-backend and Gradio UI need no edits. Output frames are converted to BGR so the
-labeling / audio / metadata steps apply automatically.
+backend and its endpoints need no edits. Output frames are converted to BGR so
+the labeling / audio / metadata steps apply automatically.
+
+The UI is a single static HTML page (`frontend/index.html`) served by the
+FastAPI app at `/` and talking to the same endpoints over `fetch()` — no
+separate UI server, no front-end build step, no extra dependencies.
 
 ## Setup (uv)
 
@@ -65,11 +69,9 @@ uv sync                    # creates .venv and installs everything from pyprojec
 PyTorch CUDA-11.7 index configured in `pyproject.toml`; all other packages come
 from PyPI.
 
-The pins for `huggingface-hub` (<0.26) and `gradio` (<5) in `pyproject.toml`
-are load-bearing, not cosmetic: `diffusers==0.27.0` imports
-`huggingface_hub.cached_download`, which was removed in hub 0.26, and gradio 5
-would otherwise pull a hub version that breaks it. Leave those caps in place
-unless you also bump diffusers.
+The `huggingface-hub` (<0.26) pin in `pyproject.toml` is load-bearing, not
+cosmetic: `diffusers==0.27.0` imports `huggingface_hub.cached_download`, which
+was removed in hub 0.26. Leave it in place unless you also bump diffusers.
 
 ### 3. Download weights (into the MimicMotion repo's own models/ dir)
 
@@ -95,15 +97,14 @@ uv run python scripts/check_env.py
 ## Run
 
 ```bash
-# terminal 1 — backend
 uv run uvicorn backend.main:app --host 127.0.0.1 --port 8000
-# terminal 2 — UI
-uv run python ui/gradio_app.py
 ```
 
-`uv run` auto-syncs and uses the project env, so no manual "activate" step. If
-the repo or weights are missing, `/generate` returns a precise
-"model not configured" message naming the missing file.
+Then open **http://127.0.0.1:8000** — the backend serves both the API and the
+UI, so it's a single process with no separate UI step. The page shows whether
+the model is configured; if the repo or weights are missing, it (and
+`/generate`) reports a precise "model not configured" message naming the missing
+file.
 
 ### GPU / CUDA notes
 
@@ -159,9 +160,9 @@ local-motion-transfer/
 │   └── queue.py             single-GPU sequential job queue
 ├── backend/
 │   ├── __init__.py
-│   └── main.py              FastAPI: /upload /generate /status /download
-├── ui/
-│   └── gradio_app.py        Gradio UI (consent checkbox required)
+│   └── main.py              FastAPI: serves UI + /upload /generate /status /download
+├── frontend/
+│   └── index.html           static UI served at / (consent checkbox required)
 ├── third_party/
 │   └── README.md            <- place MimicMotion repo + weights here
 └── data/                    created at runtime (uploads / outputs / work)

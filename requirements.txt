@@ -1,17 +1,14 @@
-# ---------------------------------------------------------------------------
 # LEGACY pip path only. If you use uv, ignore this file — pyproject.toml is the
 # source of truth and already includes MimicMotion's runtime + the CUDA torch
-# index. This file lists ONLY the app's web/UI deps, for a pip+conda setup where
-# torch/diffusers/transformers/decord/einops/omegaconf come from MimicMotion's
-# conda environment.  DWPose also needs:  pip install onnxruntime-gpu
-# ---------------------------------------------------------------------------
+# index. This file lists ONLY the app's web/media deps, for a pip+conda setup
+# where torch/diffusers/transformers/decord/einops/omegaconf come from
+# MimicMotion's conda environment.  DWPose also needs: pip install onnxruntime-gpu
+#
+# The UI is a static page served by FastAPI — no gradio.
 
 fastapi>=0.110
 uvicorn[standard]>=0.29
 python-multipart>=0.0.9       # FastAPI file uploads
-gradio>=4.0
-requests>=2.31
-
 opencv-python>=4.9
 numpy>=1.24,<2                # must stay <2 for the torch 2.0.1 / decord stack
 pillow>=10.0
